@@ -31,10 +31,13 @@ import org.openkilda.wfm.topology.flowhs.fsm.reroute.FlowRerouteFsm.Event;
 import org.openkilda.wfm.topology.flowhs.fsm.reroute.FlowRerouteFsm.State;
 
 import com.google.common.annotations.VisibleForTesting;
+import io.micrometer.core.instrument.LongTaskTimer;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 public class FlowRerouteService {
@@ -47,16 +50,18 @@ public class FlowRerouteService {
 
     private final FlowRerouteHubCarrier carrier;
     private final FlowEventRepository flowEventRepository;
+    private final MeterRegistry meterRegistry;
 
     public FlowRerouteService(FlowRerouteHubCarrier carrier, PersistenceManager persistenceManager,
                               PathComputer pathComputer, FlowResourcesManager flowResourcesManager,
                               int pathAllocationRetriesLimit, int pathAllocationRetryDelay,
-                              int speakerCommandRetriesLimit) {
+                              int speakerCommandRetriesLimit, MeterRegistry meterRegistry) {
         this.carrier = carrier;
         this.flowEventRepository = persistenceManager.getRepositoryFactory().createFlowEventRepository();
         fsmFactory = new FlowRerouteFsm.Factory(carrier, persistenceManager, pathComputer, flowResourcesManager,
                 pathAllocationRetriesLimit, pathAllocationRetryDelay,
-                speakerCommandRetriesLimit);
+                speakerCommandRetriesLimit, meterRegistry);
+        this.meterRegistry = meterRegistry;
     }
 
     /**
@@ -84,6 +89,9 @@ public class FlowRerouteService {
         }
 
         FlowRerouteFsm fsm = fsmFactory.newInstance(commandContext, flowId);
+        fsm.setGlobalTimer(LongTaskTimer.builder("fsm.active_execution")
+                .register(meterRegistry)
+                .start());
         fsms.put(key, fsm);
 
         FlowRerouteContext context = FlowRerouteContext.builder()
@@ -168,6 +176,17 @@ public class FlowRerouteService {
         if (fsm.isTerminated()) {
             log.debug("FSM with key {} is finished with state {}", key, fsm.getCurrentState());
             performHousekeeping(key);
+
+            long duration = fsm.getGlobalTimer().stop();
+            meterRegistry.timer("fsm.execution")
+                    .record(duration, TimeUnit.NANOSECONDS);
+            if (fsm.getCurrentState() == State.FINISHED) {
+                meterRegistry.timer("fsm.execution.success")
+                        .record(duration, TimeUnit.NANOSECONDS);
+            } else if (fsm.getCurrentState() == State.FINISHED_WITH_ERROR) {
+                meterRegistry.timer("fsm.execution.failed")
+                        .record(duration, TimeUnit.NANOSECONDS);
+            }
         }
     }
 

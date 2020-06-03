@@ -42,6 +42,8 @@ import org.openkilda.wfm.topology.flowhs.fsm.pathswap.action.UpdateFlowStatusAct
 import org.openkilda.wfm.topology.flowhs.fsm.pathswap.action.ValidateIngressRulesAction;
 import org.openkilda.wfm.topology.flowhs.service.FlowPathSwapHubCarrier;
 
+import io.micrometer.core.instrument.LongTaskTimer;
+import io.micrometer.core.instrument.MeterRegistry;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
@@ -55,9 +57,11 @@ public final class FlowPathSwapFsm extends FlowPathSwappingFsm<FlowPathSwapFsm, 
 
     private final FlowPathSwapHubCarrier carrier;
 
+    private LongTaskTimer.Sample globalTimer;
+
     public FlowPathSwapFsm(CommandContext commandContext, FlowPathSwapHubCarrier carrier,
-                           String flowId) {
-        super(commandContext, flowId);
+                           String flowId, MeterRegistry meterRegistry) {
+        super(commandContext, flowId, meterRegistry);
         this.carrier = carrier;
     }
 
@@ -108,19 +112,21 @@ public final class FlowPathSwapFsm extends FlowPathSwappingFsm<FlowPathSwapFsm, 
                 FlowPathSwapContext> builder;
         private final FlowPathSwapHubCarrier carrier;
         private final FlowResourcesManager resourcesManager;
-
+        private final MeterRegistry meterRegistry;
 
         public Factory(FlowPathSwapHubCarrier carrier, PersistenceManager persistenceManager,
-                       FlowResourcesManager resourcesManager,
-                       int speakerCommandRetriesLimit) {
+                       FlowResourcesManager resourcesManager, int speakerCommandRetriesLimit,
+                       MeterRegistry meterRegistry) {
             this.carrier = carrier;
             this.resourcesManager = resourcesManager;
+            this.meterRegistry = meterRegistry;
 
             final ReportErrorAction<FlowPathSwapFsm, State, Event, FlowPathSwapContext>
                     reportErrorAction = new ReportErrorAction<>();
 
             builder = StateMachineBuilderFactory.create(FlowPathSwapFsm.class, State.class, Event.class,
-                    FlowPathSwapContext.class, CommandContext.class, FlowPathSwapHubCarrier.class, String.class);
+                    FlowPathSwapContext.class, CommandContext.class, FlowPathSwapHubCarrier.class, String.class,
+                    MeterRegistry.class);
 
             FlowOperationsDashboardLogger dashboardLogger = new FlowOperationsDashboardLogger(log);
 
@@ -215,7 +221,8 @@ public final class FlowPathSwapFsm extends FlowPathSwappingFsm<FlowPathSwapFsm, 
         }
 
         public FlowPathSwapFsm newInstance(CommandContext commandContext, String flowId) {
-            return builder.newStateMachine(FlowPathSwapFsm.State.INITIALIZED, commandContext, carrier, flowId);
+            return builder.newStateMachine(FlowPathSwapFsm.State.INITIALIZED, commandContext, carrier, flowId,
+                    meterRegistry);
         }
     }
 
