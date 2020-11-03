@@ -129,7 +129,7 @@ public class NoviflowController {
     public CompletableFuture<EnableLogMessagesResponse> enableLogOferrors(
             @PathVariable("switch_address") String switchAddress,
             @RequestBody LogOferrorsDto logOferrors) {
-        return grpcService.enableLogOferror(switchAddress, logOferrors);
+        return grpcService.enableLogOfError(switchAddress, logOferrors);
     }
 
     @ApiOperation(value = "Get a remote log server configuration for the switch", response = RemoteLogServer.class)
