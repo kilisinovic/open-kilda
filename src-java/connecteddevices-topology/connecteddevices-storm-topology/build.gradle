@@ -10,6 +10,7 @@ description = 'Connected Devices Storm Topology'
 dependencies {
     implementation project(':base-storm-topology')
     implementation project(path: ':base-storm-topology', configuration: 'stormFluxArtifacts')
+    implementation project(':blue-green')
     runtimeClasspath project(path: ':base-storm-topology', configuration: 'releaseArtifacts')
     testImplementation project(path: ':base-storm-topology', configuration: 'testArtifacts')
     runtimeClasspath project(':kilda-persistence-orientdb')

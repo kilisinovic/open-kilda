@@ -18,6 +18,9 @@ package org.openkilda.wfm.topology.connecteddevices;
 import org.openkilda.persistence.PersistenceManager;
 import org.openkilda.persistence.spi.PersistenceProvider;
 import org.openkilda.wfm.LaunchEnvironment;
+import org.openkilda.wfm.share.zk.ZkStreams;
+import org.openkilda.wfm.share.zk.ZooKeeperBolt;
+import org.openkilda.wfm.share.zk.ZooKeeperSpout;
 import org.openkilda.wfm.topology.AbstractTopology;
 import org.openkilda.wfm.topology.connecteddevices.bolts.PacketBolt;
 
@@ -41,21 +44,44 @@ public class ConnectedDevicesTopology extends AbstractTopology<ConnectedDevicesT
         PersistenceManager persistenceManager =
                 PersistenceProvider.getInstance().getPersistenceManager(configurationProvider);
 
+        createZkSpout(builder);
+
         createSpout(builder);
         createPacketBolt(builder, persistenceManager);
 
+        createZkBolt(builder);
+
         return builder.createTopology();
+    }
+
+    private void createZkSpout(TopologyBuilder builder) {
+        ZooKeeperSpout zooKeeperSpout = new ZooKeeperSpout(getConfig().getBlueGreenMode(), getZkTopoName(),
+                getZookeeperConfig().getHosts());
+        builder.setSpout(ZooKeeperSpout.BOLT_ID, zooKeeperSpout, 1);
+    }
+
+    private void createSpout(TopologyBuilder builder) {
+        builder.setSpout(CONNECTED_DEVICES_SPOUT_ID, buildKafkaSpout(topologyConfig.getKafkaTopoConnectedDevicesTopic(),
+                CONNECTED_DEVICES_SPOUT_ID, getZkTopoName(), getConfig().getBlueGreenMode()));
     }
 
     private void createPacketBolt(TopologyBuilder builder, PersistenceManager persistenceManager) {
         PacketBolt routerBolt = new PacketBolt(persistenceManager);
         builder.setBolt(PACKET_BOLT_ID, routerBolt, topologyConfig.getNewParallelism())
-                .shuffleGrouping(CONNECTED_DEVICES_SPOUT_ID);
+                .shuffleGrouping(CONNECTED_DEVICES_SPOUT_ID)
+                .allGrouping(ZooKeeperSpout.BOLT_ID);
     }
 
-    private void createSpout(TopologyBuilder builder) {
-        builder.setSpout(CONNECTED_DEVICES_SPOUT_ID, buildKafkaSpout(topologyConfig.getKafkaTopoConnectedDevicesTopic(),
-                CONNECTED_DEVICES_SPOUT_ID));
+    private void createZkBolt(TopologyBuilder builder) {
+        ZooKeeperBolt zooKeeperBolt = new ZooKeeperBolt(getConfig().getBlueGreenMode(), getZkTopoName(),
+                getZookeeperConfig().getHosts());
+        builder.setBolt(ZooKeeperBolt.BOLT_ID, zooKeeperBolt, 1)
+                .shuffleGrouping(PACKET_BOLT_ID, ZkStreams.ZK.toString());
+    }
+
+    @Override
+    protected String getZkTopoName() {
+        return "connected_devices";
     }
 
     /**
