@@ -722,6 +722,7 @@ public class NorthboundServiceImpl implements NorthboundService {
                 .latency(dto.getLatency())
                 .bfdSessionStatus(dto.getBfdSessionStatus())
                 .enableBfd(dto.isEnableBfd())
+                .roundTripStatus(dto.getRoundTripStatus() != null ? IslChangeType.from(dto.getRoundTripStatus().toString()) : null)
                 .build();
     }
 }
