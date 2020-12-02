@@ -1,0 +1,7 @@
+<rpc xmlns='urn:ietf:params:xml:ns:netconf:base:1.0' message-id='512'>
+  <validate>
+    <source>
+      <url>http://warr.webzies.org:8000/new-device.xml</url>
+    </source>
+  </validate>
+</rpc>

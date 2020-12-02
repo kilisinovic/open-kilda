@@ -1,0 +1,13 @@
+module service-tree {
+  namespace "http://example.org/yang/service-tree";
+  prefix svc3;
+
+  revision 2020-09-07 {
+    description "Initial revision";
+  }
+
+  container services {
+    description
+      "Service definitions.";
+  }
+}

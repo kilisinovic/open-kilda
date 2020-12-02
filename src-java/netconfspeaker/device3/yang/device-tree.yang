@@ -1,0 +1,62 @@
+module device-tree {
+  namespace "http://example.org/yang/device-tree";
+  prefix dev3;
+
+  import ietf-yang-types {
+    prefix yang;
+  }
+  import ietf-inet-types {
+    prefix inet;
+  }
+
+  revision 2020-09-09 {
+    description
+      "Support for device address and port";
+  }
+  revision 2020-09-07 {
+    description
+      "Support for authgroups";
+  }
+  revision 2020-09-05 {
+    description "Initial revision";
+  }
+
+  container devices {
+    list authgroups {
+      key "name";
+      leaf name {
+        type string;
+      }
+      leaf authstring {
+        type string;
+        mandatory true;
+      }
+    }
+    list device {
+      key "name";
+      leaf name {
+        type string;
+      }
+      leaf authgroup {
+        type string;
+        mandatory true;
+        must ../../authgroups/name;
+      }
+      leaf last-updated {
+        type yang:date-and-time;
+        when ../name;
+      }
+      leaf address {
+        type inet:ipv4-address;
+        when ../name;
+      }
+      leaf port {
+        type inet:port-number;
+        when ../address;
+      }
+      container config {
+        when ../name;
+      }
+    }
+  }
+}

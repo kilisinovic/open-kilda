@@ -1,0 +1,29 @@
+{
+    "request":{
+        "operation":"edit-config",
+        "transaction-id":"100",
+        "devices":{
+            "device":[
+                {
+                    "name": "device1",
+                    "address": "192.0.0.1",
+                    "port":"22",
+                    "config":{
+                        "router":{
+                            "router-id":"192.3.3.3",
+                            "bgp":{
+                                "as-number":"123456",
+                                "neighbors":[
+                                    {
+                                        "id":"192.4.4.4",
+                                        "remote-as": 111111
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    }
+}

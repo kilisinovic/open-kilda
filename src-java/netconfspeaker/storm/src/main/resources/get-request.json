@@ -1,0 +1,13 @@
+{
+    "request":{
+        "operation":"get-config",
+        "transaction-id":"100",
+        "devices":{
+            "device":[
+                {
+                    "name": "device1"
+                }
+            ]
+        }
+    }
+}

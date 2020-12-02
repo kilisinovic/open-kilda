@@ -1,0 +1,32 @@
+module request {
+
+  namespace "http://example.org/yang/request";
+
+  prefix request;
+
+  organization "Flint SI";
+
+  contact "kristijan.ilisinovic@flintmail.com";
+
+  description
+    "wrapper for yang tree model in storm. Everything is augmented under request container";
+
+  revision 2020-10-20 {
+    description "Initial revision.";
+    reference "http://example.org/yang/arpcache/revisions";
+  }
+
+  container request {
+    leaf operation{
+        type enumeration{
+          enum get-config;
+          enum edit-config;
+        }
+    }
+
+    leaf transaction-id{
+      type string;
+      mandatory true;
+    }
+  }
+}

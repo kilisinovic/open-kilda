@@ -1,0 +1,52 @@
+module bgp-service {
+
+  namespace "http://example.org/yang/bgp-service";
+  prefix bgpservice;
+
+  import service-tree {
+    prefix svc3;
+  }
+  import device-tree {
+    prefix dev3;
+  }
+
+  organization
+    "ACME Inc.";
+  contact
+    "acme-developers@acme.org";
+  description
+    "YANG datamodel for ACME Service";
+  revision 2020-09-08{
+    description
+        "Initial revision.";
+    reference
+        "http://example.org/yang/bgp-service/revisions";
+  }
+
+  augment /svc3:services {
+    description
+      "Extends the /services tree.";
+    list bgp-service {
+      key "name";
+      description
+        "Service model for bgp-service.";
+      leaf name {
+        type string;
+        description
+          "Service Instance Name";
+        mandatory true;
+      }
+      leaf as-number {
+        type uint16;
+        mandatory true;
+      }
+      list router {
+        key name;
+        leaf name {
+          type string;
+          must "/dev3:devices/dev3:device/dev3:name";
+        }
+      }
+    }
+  }
+}

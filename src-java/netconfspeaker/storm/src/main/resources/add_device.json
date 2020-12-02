@@ -1,0 +1,22 @@
+{
+    "request":{
+        "operation":"edit-config",
+        "transaction-id":"100",
+        "devices":{
+            "authgroups":[
+                {
+                    "name": "auth1",
+                    "authstring": "adasdas"
+                }
+            ],
+            "device":[
+                {
+                    "name": "device1",
+                    "address": "192.0.0.1",
+                    "port":"22",
+                    "authgroup":"auth1"
+                }
+            ]
+        }
+    }
+}

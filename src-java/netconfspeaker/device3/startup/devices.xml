@@ -1,0 +1,25 @@
+<devices xmlns="http://example.org/yang/device-tree">
+  <authgroups>
+    <name>default</name>
+    <authstring>YWRtaW46YWRtaW4=</authstring>
+  </authgroups>
+  <device>
+    <name>Example Router 99</name>
+    <authgroup>default</authgroup>
+    <config>
+      <router xmlns="http://example.org/yang/router-config">
+        <router-id>10.0.99.1</router-id>
+        <bgp>
+          <as-number>65099</as-number>
+          <neighbors>
+            <id>10.0.11.1</id>
+            <remote-as>65011</remote-as>
+          </neighbors>
+        </bgp>
+      </router>
+    </config>
+    <last-updated>2020-09-07T10:16:10.720085+00:00</last-updated>
+    <address>10.0.99.1</address>
+    <port>830</port>
+  </device>
+</devices>

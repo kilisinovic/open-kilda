@@ -1,0 +1,10 @@
+<devices xmlns="http://example.org/yang/device-tree">
+  <device>
+    <name>Example Router 99</name>
+    <config>
+      <router xmlns="http://example.org/yang/router-config">
+        <router-id>10.0.99.99</router-id>
+      </router>
+    </config>
+  </device>
+</devices>

@@ -1,0 +1,14 @@
+{
+  "device-tree:devices": {
+    "device": [
+      {
+        "name": "Example Router 99",
+        "config": {
+          "router-config:router": {
+            "router-id": "10.0.99.55"
+          }
+        }
+      }
+    ]
+  }
+}

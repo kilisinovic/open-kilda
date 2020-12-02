@@ -1,0 +1,15 @@
+<!--
+Description: Configuration file for netopeer2-cli
+Location: /root/.netopeer2-cli/config.xml
+--> 
+<netconf-client>
+ <editor>vi</editor>
+ <output-format>xml</output-format>
+ <authentication>
+  <pref>
+   <publickey>1</publickey>
+   <password>2</password>
+   <interactive>3</interactive>
+  </pref>
+ </authentication>
+</netconf-client>

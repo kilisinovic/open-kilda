@@ -1,0 +1,24 @@
+{
+  "device-tree:devices": {
+    "device": [
+      {
+        "name": "Example Router 33",
+        "authgroup": "default",
+        "config": {
+          "router-config:router": {
+            "router-id": "10.0.33.2",
+            "bgp": {
+              "as-number": 65033,
+              "neighbors": [
+                {
+                  "id": "10.0.88.1",
+                  "remote-as": 65088
+                }
+              ]
+            }
+          }
+        }
+      }
+    ]
+  }
+}

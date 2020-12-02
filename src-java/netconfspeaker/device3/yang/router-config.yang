@@ -1,0 +1,69 @@
+module router-config {
+
+  namespace "http://example.org/yang/router-config";
+
+  prefix router;
+
+  import ietf-inet-types {
+    prefix inet;
+  }
+  import device-tree {
+    prefix dev3;
+  }
+
+  organization "Flint SI";
+
+  contact "robert.mandic@flintmail.com";
+
+  description
+    "YANG datamodel for handling FRR configuration";
+
+  revision 2020-03-24 {
+    description "Initial revision.";
+    reference "http://example.org/yang/router-config/revisions";
+  }
+
+  augment /dev3:devices/dev3:device/dev3:config {
+
+    container router {
+
+      description "Container for router configuration.";
+
+      // router-id
+      leaf router-id {
+
+        type inet:ipv4-address;
+        description 
+          "Router ID";
+      }
+
+      // bgp
+      container bgp {
+        when ../router-id;
+
+        leaf as-number {
+          type inet:as-number;
+          description
+            "AS number";
+        }
+
+        list neighbors {
+          when ../as-number;
+          key "id";
+
+          leaf id {
+            type inet:ipv4-address;
+            description
+              "BGP neighbor ipv4 address";
+          }
+          
+          leaf remote-as {
+            type inet:as-number;
+            description
+              "AS number";
+          }
+        }
+      }
+    }
+  }
+}
